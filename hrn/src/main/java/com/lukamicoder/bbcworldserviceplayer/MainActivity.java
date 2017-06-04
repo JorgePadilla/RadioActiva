@@ -16,16 +16,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     private MediaPlayer mediaPlayer;
     private TextView textViewInfo;
     private Menu menu;
@@ -42,11 +49,30 @@ public class MainActivity extends AppCompatActivity {
     private static final Integer NID = 1;
     private static final String EXIT_INTENT = "ExitIntent";
     private static final String PLAYCONTROL_INTENT = "PlayControlIntent";
-
+    private AdView mAdView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize the Mobile Ads SDK.
+        MobileAds.initialize(this, "ca-app-pub-3940256099942544~3347511713");
+
+        // Gets the ad view defined in layout/ad_fragment.xml with ad unit ID set in
+        // values/strings.xml.
+        mAdView = (AdView) findViewById(R.id.adView);
+
+        // Create an ad request. Check your logcat output for the hashed device ID to
+        // get test ads on a physical device. e.g.
+        // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+
+        // Start loading the ad in the background.
+        mAdView.loadAd(adRequest);
+
+
         textViewInfo = (TextView) findViewById(R.id.textViewInfo);
 
         mediaPlayer = new MediaPlayer();
@@ -253,4 +279,5 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return null != activeNetwork;
     }
+
 }
